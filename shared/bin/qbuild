@@ -823,7 +823,7 @@ create_qpkg(){
 
 	/bin/mkdir -m 755 -p "${QDK_BUILD_DIR:=build}" || err_msg "$QDK_BUILD_DIR: failed to create directory"
 
-	QDK_QPKG_FILE=${QDK_QPKG_FILE:-${QPKG_NAME}_${QPKG_VER}${model}.qpkg}
+	QDK_QPKG_FILE=${QDK_QPKG_FILE:-${QPKG_NAME}_${QPKG_VER}${release}${model}.qpkg}
 	verbose_msg "QPKG package name set to $QDK_QPKG_FILE"
 
 	verbose_msg "Packaging optional extra data files..."
