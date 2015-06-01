@@ -16,3 +16,5 @@ QDK is distributed under the GPL making it completely open and available for any
 # Installation
 
 Download and install the QPKG file and it will automatically create the system-wide configuration file, /etc/config/qdk.conf, and when enabled it also creates a symlink for qbuild in /usr/bin. The reference manual is included in a separate zip file. There is also a document (QDK Cookbook) with solutions to different common situations that you could run into when using QDK to build QPKG packages.
+
+# Update new feature
