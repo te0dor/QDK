@@ -571,27 +571,35 @@ add_qpkg_header(){
 	case "$arch" in
 		arm-x09)
 			cpu_arch="armv5tejl"
+			reject_platform=
 			;;
 		arm-x19)
 			cpu_arch="armv5tel"
+			reject_platform=
 			;;
 		arm-x31)
 			cpu_arch="armv7l"
+			reject_platform="ARM_AL"
 			;;
-                arm-x41)
-                        cpu_arch="armv7l"
-                        ;;
+		arm-x41)
+            		cpu_arch="armv7l"
+			reject_platform="ARM_MS"
+            ;;
 		x86)
-			cpu_arch="i686\|x86_64"
+			cpu_arch="i.86\|x86_64"
+			reject_platform="X86_EVANSPORT"
 			;;
 		x86_ce53xx)
 			cpu_arch="i686"
+			reject_platform="X86_LAKEPORT\|X86_ATOM"
 			;;
 		x86_64)
 			cpu_arch="x86_64"
+			reject_platform=
 			;;
 		*)
 			cpu_arch=
+			reject_platform=
 			;;
 	esac
 
@@ -634,7 +642,11 @@ add_qpkg_header(){
 		}
 		arch_ok(){
 			 local cpu_arch=\$(/bin/uname -m)
-			 [ \$(/usr/bin/expr match "\$cpu_arch" "$cpu_arch") -ne 0 ] || return 1
+			 local reject_platform=\$(/sbin/getcfg "" Platform -f /etc/platform.conf) 
+			if [ \$(/usr/bin/expr match "\$reject_platform" "$reject_platform") == 0 ]; then
+				[ \$(/usr/bin/expr match "\$cpu_arch" "$cpu_arch") -ne 0 ] || return 1
+			else return 1
+			fi
 		}
 		EOF
 	fi
@@ -811,7 +823,7 @@ create_qpkg(){
 
 	/bin/mkdir -m 755 -p "${QDK_BUILD_DIR:=build}" || err_msg "$QDK_BUILD_DIR: failed to create directory"
 
-	QDK_QPKG_FILE=${QDK_QPKG_FILE:-${QPKG_NAME}_${QPKG_VER}${model}.qpkg}
+	QDK_QPKG_FILE=${QDK_QPKG_FILE:-${QPKG_NAME}_${QPKG_VER}${release}${model}.qpkg}
 	verbose_msg "QPKG package name set to $QDK_QPKG_FILE"
 
 	verbose_msg "Packaging optional extra data files..."
@@ -1037,8 +1049,8 @@ traverse_and_build(){
 				arch_dir="${QDK_DATA_DIR_X31:-arm-x31}"
 				;;
 			arm-x41)
-                                arch_dir="${QDK_DATA_DIR_X41:-arm-x41}"
-                                ;;
+				arch_dir="${QDK_DATA_DIR_X41:-arm-x41}"
+                ;;
 			x86)
 				arch_dir="${QDK_DATA_DIR_X86:-x86}"
 				;;
