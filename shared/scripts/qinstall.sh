@@ -325,6 +325,19 @@ remove_file_and_empty_dir(){
 	fi
 }
 
+#############################
+# Check QTS minimum version.
+#############################
+check_qts_version(){
+	NOW_VERSION=`/sbin/getcfg System Version -f /etc/config/uLinux.conf|cut -c 1,3,5`
+    MINI_VERSION=`echo "$QTS_MINI_VERSION"|cut -c 1,3,5`
+	if [ ${MINI_VERSION} -gt ${NOW_VERSION} ]; then
+		err_log "Error Firmware version, please upgrade to QTS ${QTS_MINI_VERSION} or newer version."
+	else
+	    echo "Firmware check is fine."
+	fi
+}
+
 ################################################################
 # Remove obsolete files by comparing old and new list of files.
 ################################################################
@@ -1150,6 +1163,7 @@ install(){
 # Post-install routine
 ##################################
 post_install(){
+	check_qts_version
 	remove_obsolete_files
 	copy_qpkg_icons
 	link_start_stop_script
