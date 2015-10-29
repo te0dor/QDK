@@ -1334,7 +1334,7 @@ usage(){
 	/bin/cat <<EOF
 usage: $(/usr/bin/basename $0) [--extract QPKG [DIR]] [--create-env NAME] [-s|--section SECTION]
 	[--root ROOT_DIR] [--build-arch ARCH] [--build-version VERSION]
-	[--build-model MODEL] [--build-dir BUILD_DIR] [--force-config]
+	[--build-number NUMBER] [--build-model MODEL] [--build-dir BUILD_DIR] [--force-config]
 	[--setup SCRIPT] [--teardown SCRIPT] [--pre-build SCRIPT]
 	[--post-build SCRIPT] [--exclude PATTERN] [--exclude-from FILE]
 	[--gzip|--bzip2|--7zip] [--sign] [--gpg-name ID] [--verify QPKG]
