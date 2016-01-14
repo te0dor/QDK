@@ -606,9 +606,10 @@ add_qpkg_header(){
 	echo "#!/bin/sh" > $QDK_QPKG_FILE
 	/bin/cat >>$QDK_QPKG_FILE <<-EOF
 	find_base(){
-	        BASE_GROUP="/share/HDA_DATA /share/HDB_DATA /share/HDC_DATA /share/HDD_DATA /share/HDE_DATA /share/HDF_DATA /share/HDG_DATA /share/HDH_DATA /share/HDI_DATA /share/HDJ_DATA /share/HDK_DATA /share/HDL_DATA /share/MD0_DATA /share/MD1_DATA /share/MD2_DATA /share/MD3_DATA"
-	        publicdir=\`/sbin/getcfg Public path -f /etc/config/smb.conf\`
-	        if [ ! -z \$publicdir ] && [ -d \$publicdir ];then
+		if [ -z "\$QINSTALL_PATH" ]; then
+	        	BASE_GROUP="/share/HDA_DATA /share/HDB_DATA /share/HDC_DATA /share/HDD_DATA /share/HDE_DATA /share/HDF_DATA /share/HDG_DATA /share/HDH_DATA /share/HDI_DATA /share/HDJ_DATA /share/HDK_DATA /share/HDL_DATA /share/MD0_DATA /share/MD1_DATA /share/MD2_DATA /share/MD3_DATA"
+	        	publicdir=\`/sbin/getcfg Public path -f /etc/config/smb.conf\`
+	        	if [ ! -z \$publicdir ] && [ -d \$publicdir ];then
 	                publicdirp1=\`/bin/echo \$publicdir | /bin/cut -d "/" -f 2\`
 	                publicdirp2=\`/bin/echo \$publicdir | /bin/cut -d "/" -f 3\`
 	                publicdirp3=\`/bin/echo \$publicdir | /bin/cut -d "/" -f 4\`
@@ -627,8 +628,12 @@ add_qpkg_header(){
 	                echo "The Public share not found."
 	                return 1
 	        fi
-	        QPKG_INSTALL_PATH="\${QPKG_BASE}/.qpkg"
-	        QPKG_DIR="\${QPKG_INSTALL_PATH}/\${QPKG_NAME}"
+	        	QPKG_INSTALL_PATH="\${QPKG_BASE}/.qpkg"
+	        	QPKG_DIR="\${QPKG_INSTALL_PATH}/\${QPKG_NAME}"
+		else
+                	QPKG_INSTALL_PATH="\${QINSTALL_PATH}"
+                	QPKG_DIR="\${QINSTALL_PATH}/\${QPKG_NAME}"
+             fi
 	        return 0
 	}
 	EOF
