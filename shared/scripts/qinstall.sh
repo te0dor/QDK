@@ -1193,9 +1193,9 @@ main(){
 	##system pop up log when QPKG has installed 
 
 	if [ -n "$QPKG_DISPLAY_NAME" ]; then
-		log "[App Center] ${QPKG_DISPLAY_NAME} ${QPKG_VER} installation succeeded."   
+		log "[App Center] ${QPKG_DISPLAY_NAME} ${QPKG_VER} has been installed in $SYS_QPKG_DIR ."   
 	else
-		log "[App Center] $QPKG_NAME ${QPKG_VER} installation succeeded."
+		log "[App Center] $QPKG_NAME ${QPKG_VER} has been installed in $SYS_QPKG_DIR ."
 	fi
 
 	##system pop up log after QPKG has installed and app was enable

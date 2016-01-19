@@ -23,6 +23,10 @@ https://github.com/fcwu/docker-qdk2
 
 # Update new feature
 
+2.2.10
+
+	-Add installation log to system logs.
+
 2.2.9
 
 	-Support volume select(This function work on minimum QTS 4.2.1)
