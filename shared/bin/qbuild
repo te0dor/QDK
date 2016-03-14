@@ -606,6 +606,10 @@ add_qpkg_header(){
 	echo "#!/bin/sh" > $QDK_QPKG_FILE
 	/bin/cat >>$QDK_QPKG_FILE <<-EOF
 	find_base(){
+	HDD_MOUNT=\`/sbin/getcfg Public path -f /etc/config/smb.conf\`
+	local log_tool="/sbin/log_tool -t2 -uSystem -p127.0.0.1 -mlocalhost -a"
+
+	if [ -e "\$HDD_MOUNT" ]; then
 		if [ -z "\$QINSTALL_PATH" ]; then
 	        	BASE_GROUP="/share/HDA_DATA /share/HDB_DATA /share/HDC_DATA /share/HDD_DATA /share/HDE_DATA /share/HDF_DATA /share/HDG_DATA /share/HDH_DATA /share/HDI_DATA /share/HDJ_DATA /share/HDK_DATA /share/HDL_DATA /share/MD0_DATA /share/MD1_DATA /share/MD2_DATA /share/MD3_DATA"
 	        	publicdir=\`/sbin/getcfg Public path -f /etc/config/smb.conf\`
@@ -631,10 +635,19 @@ add_qpkg_header(){
 	        	QPKG_INSTALL_PATH="\${QPKG_BASE}/.qpkg"
 	        	QPKG_DIR="\${QPKG_INSTALL_PATH}/\${QPKG_NAME}"
 		else
+		if [ -e "\$QINSTALL_PATH" ]; then
                 	QPKG_INSTALL_PATH="\${QINSTALL_PATH}"
                 	QPKG_DIR="\${QINSTALL_PATH}/\${QPKG_NAME}"
+		else
+			$log_tool "QTS application install volume not found."
+			exit
+		fi
              fi
 	        return 0
+	else
+		$log_tool "QTS system volume not found."
+		exit
+	fi
 	}
 	EOF
 	if [ -n "$cpu_arch" ]; then

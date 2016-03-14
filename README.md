@@ -23,6 +23,14 @@ https://github.com/fcwu/docker-qdk2
 
 # Update new feature
 
+2.2.12
+	
+	-Add QTS system main volume mount check.
+
+2.2.11
+
+	-Modify install succeeded system logs. 
+
 2.2.10
 
 	-Add installation log to system logs.
