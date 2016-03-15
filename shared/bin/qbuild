@@ -67,11 +67,25 @@ check_deprecated_definitions(){
 		QDK_SRC_X86_CE53XX=
 		warn_msg "QDK_SRC_X86_CE53XX: deprecated definition"
 	fi
-	
+	if [ -n "$QDK_SRC_X86_BR" ]; then
+		[ -z "$QDK_DATA_DIR_X86_BR" ] && QDK_DATA_DIR_X86_BR="$QDK_SRC_X86_BR"
+		QDK_SRC_X86_BR=
+		warn_msg "QDK_SRC_X86_BR: deprecated definition"
+	fi
+	if [ -n "$QDK_SRC_X86_SB" ]; then
+		[ -z "$QDK_DATA_DIR_X86_SB" ] && QDK_DATA_DIR_X86_SB="$QDK_SRC_X86_SB"
+		QDK_SRC_X86_SB=
+		warn_msg "QDK_SRC_X86_SB: deprecated definition"
+	fi
 	if [ -n "$QDK_SRC_X86_64" ]; then
 		[ -z "$QDK_DATA_DIR_X86_64" ] && QDK_DATA_DIR_X86_64="$QDK_SRC_X86_64"
 		QDK_SRC_X86_64=
 		warn_msg "QDK_SRC_X86_64: deprecated definition"
+	fi
+	if [ -n "$QDK_SRC_X86_64_OMX" ]; then
+		[ -z "$QDK_DATA_DIR_X86_64_OMX" ] && QDK_DATA_DIR_X86_64_OMX="$QDK_SRC_X86_64_OMX"
+		QDK_SRC_X86_64_OMX=
+		warn_msg "QDK_SRC_X86_64_OMX: deprecated definition"
 	fi
 	if [ -n "$QDK_SRC_SHARED" ]; then
 		[ -z "$QDK_DATA_DIR_SHARED" ] && QDK_DATA_DIR_SHARED="$QDK_SRC_SHARED"
@@ -250,25 +264,10 @@ warn_msg(){
 }
 
 # Verbosity levels
-readonly QUIET=0
-readonly NORMAL=1
-readonly VERBOSE=2
-readonly DEBUG=3
-
-# Set to no messages.
-is_quiet(){
-	(( $QDK_VERBOSE == $QUIET )) || return 1
-}
-
-# Set to verbose or debug messages.
-is_verbose(){
-	(( $VERBOSE <= $QDK_VERBOSE )) || return 1
-}
-
-# Set to debug messages.
-is_debug(){
-	(( $DEBUG <= $QDK_VERBOSE )) || return 1
-}
+QUIET=0
+NORMAL=1
+VERBOSE=2
+DEBUG=3
 
 # Log messages are printed (to stdout) if verbose mode is greater or equal
 # to specified level (default: NORMAL).
@@ -435,6 +434,14 @@ add_built_version(){
 	fi
 }
 
+# Add built information to control package directory
+add_built_information(){
+	verbose_msg "Adding built information..."
+
+	echo -n "time = " > build.$$/built_info
+	date "+%Y%m%d" >> build.$$/built_info
+}
+
 #
 perform_data_package_adaptor(){
 	verbose_msg "Adapt the data package files (such as file owner)"
@@ -456,7 +463,7 @@ create_data_package(){
 	/bin/mkdir -m 755 -p build.$$ || err_msg "failed to create directory for data files"
 
 	local rsync_opts="-av"
-	is_debug || rsync_opts="$rsync_opts -q"
+	[ $QDK_VERBOSE -ge $DEBUG ] || rsync_opts="$rsync_opts -q"
 	[ -z "$QDK_RSYNC_EXCLUDE" ] || rsync_opts="$rsync_opts $QDK_RSYNC_EXCLUDE"
 	[ -z "$QDK_RSYNC_EXCLUDE_FROM" ] || rsync_opts="$rsync_opts $QDK_RSYNC_EXCLUDE_FROM"
 	add_shared_files "$rsync_opts"
@@ -485,7 +492,7 @@ create_data_package(){
 	7zip)
 		QDK_COMPRESS_FILE=data.tar.7z
 		local tar_verbose=
-		is_debug && tar_verbose="-v"
+		[ $QDK_VERBOSE -ge $DEBUG ] && tar_verbose="-v"
 		debug_msg "[$QDK_COMPRESS_FILE]"
 		debug_msg "$(/bin/tar $tar_verbose -cf - -C build.$$ . | /usr/local/sbin/7z a -si tmp.$$/data.tar.7z)"
 		;;
@@ -499,6 +506,8 @@ create_control_package(){
 	msg "Creating archive with control files..."
 
 	/bin/mkdir -m 755 -p build.$$ || err_msg "failed to create directory for control files"
+
+	add_built_information
 
 	/bin/cp -p "$QDK_INSTALL_SCRIPT" build.$$/
 	/bin/cp -p "$QDK_PACKAGE_ROUTINES" build.$$/package_routines
@@ -531,7 +540,7 @@ create_packages_file(){
 		printf "\n\n" >> tmp.$$/Packages
 	done
 	if [ -f tmp.$$/Packages ]; then
-		is_debug && /bin/cat tmp.$$/Packages
+		[ $QDK_VERBOSE -ge $DEBUG ] && /bin/cat tmp.$$/Packages
 		/bin/gzip tmp.$$/Packages
 	fi
 }
@@ -714,7 +723,7 @@ add_qpkg_header(){
 		script_len=$(/usr/bin/expr $script_len + 1)
 	fi
 	/bin/sed -i "s/SCRIPT_LEN/$script_len/" $QDK_QPKG_FILE
-	is_debug && /bin/cat $QDK_QPKG_FILE
+	[ $QDK_VERBOSE -ge $DEBUG ] && /bin/cat $QDK_QPKG_FILE
 }
 
 # Add actual content to QPKG.
@@ -790,7 +799,7 @@ add_qpkg_signature(){
 		gpg)
 			local gpg_options="--detach-sign -o-"
 			[ -n "$QDK_GPG_NAME" ] && gpg_options="$gpg_options -u $QDK_GPG_NAME"
-			is_quiet && gpg_options="$gpg_options --no-tty"
+			[ $QDK_VERBOSE -eq $QUIET ] && gpg_options="$gpg_options --no-tty"
 			debug_msg "$QDK_GPG_APP $gpg_options $QDK_QPKG_FILE >> ${QDK_QPKG_FILE}.sig"
 			if $QDK_GPG_APP $gpg_options $QDK_QPKG_FILE >> ${QDK_QPKG_FILE}.sig; then
 				add_qdk_area_begin
@@ -1153,8 +1162,8 @@ extract_qpkg(){
 	[ -d $dir ] || /bin/mkdir -p $dir
 	local dd_quiet=
 	local tar_quiet=
-	is_quiet && tar_quiet=">/dev/null"
-	is_verbose || dd_quiet="2>/dev/null"
+	[ $QDK_VERBOSE -gt $QUIET ] || tar_quiet=">/dev/null"
+	[ $QDK_VERBOSE -gt $NORMAL ] || dd_quiet="2>/dev/null"
 	local extract_command="$(/bin/sed -n "1,/^exit 1/{
 s!if=\"\${0}\" \(.* -C\) .*!$dd_quiet if=$qpkg \1 $dir $tar_quiet;!p
 s!if=\"\${0}\" \(.* of.*\) ||.*!$dd_quiet if=$qpkg \1 $dd_quiet;!p
@@ -1178,7 +1187,7 @@ query_qpkg(){
 	[ -f $qpkg ] || err_msg "$qpkg: no such file"
  	
 	local dd_quiet=
-	is_debug || dd_quiet="2>/dev/null"
+	[ $QDK_VERBOSE -ge $DEBUG ] || dd_quiet="2>/dev/null"
 	local output=
 	if [ "$option" = "funcs" ]; then
 		dd_command=$(/bin/sed -n "1,/^exit 1/{
@@ -1248,7 +1257,7 @@ verify_qpkg(){
 	sign_len=$(get_signature_len $qpkg) || exit 0
 
 	local gpg_options="--verify --no-default-keyring --keyring $QDK_GPG_PUBKEYRING"
-	is_verbose || gpg_options="$gpg_options 2>/dev/null"
+	[ $QDK_VERBOSE -gt $NORMAL ] || gpg_options="$gpg_options 2>/dev/null"
 	local gpg_cmd="$QDK_GPG_APP $gpg_options \
 		<(/bin/dd if=$qpkg bs=1 skip=$sign_pos count=$sign_len 2>/dev/null) \
 		<(/bin/dd if=$qpkg bs=$data_size count=1 2>/dev/null)"
@@ -1288,7 +1297,7 @@ add_sign_qpkg(){
 		verbose_msg "Generate and add new signature..."
 		local gpg_options="--detach-sign -o-"
 		[ -n "$QDK_GPG_NAME" ] && gpg_options="$gpg_options -u $QDK_GPG_NAME"
-		is_quiet && gpg_options="$gpg_options --no-tty"
+		[ $QDK_VERBOSE -eq $QUIET ] && gpg_options="$gpg_options --no-tty"
 		gpg_cmd="$QDK_GPG_APP $gpg_options ${qpkg}.$$ >> ${qpkg}.sig"
 		debug_msg "$gpg_cmd"
 		eval $gpg_cmd || warn_msg "${qpkg##*/}: no signature added"
@@ -1315,7 +1324,7 @@ import_key(){
 	local key="$1"
 	[ -f $key ] || err_msg "$key: no such file"
 	gpg_cmd="$QDK_GPG_APP --no-default-keyring --keyring $QDK_GPG_PUBKEYRING --import $key"
-	is_quiet && gpg_cmd="$gpg_cmd 2>/dev/null"
+	[ $QDK_VERBOSE -eq $QUIET ] && gpg_cmd="$gpg_cmd 2>/dev/null"
 	debug_msg "$gpg_cmd"
 	eval $gpg_cmd
 }

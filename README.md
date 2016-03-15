@@ -17,11 +17,27 @@ QDK is distributed under the GPL making it completely open and available for any
 
 Download and install the QPKG file and it will automatically create the system-wide configuration file, /etc/config/qdk.conf, and when enabled it also creates a symlink for qbuild in /usr/bin. The reference manual is included in a separate zip file. There is also a document (QDK Cookbook) with solutions to different common situations that you could run into when using QDK to build QPKG packages.
 
+# How to add icons in QPKG
+Location of directory with icons for the packaged software. Default location is a directory named icons in $QDK_ROOT_DIR. 
+The value must be a full path or a path relative to $QDK_ROOT_DIR. The icons shall be named ${QPKG_NAME}.gif, ${QPKG_NAME}_80.gif, and ${QPKG_NAME}_gray.gif.
+
+* ${QPKG_NAME}.gif is the image displayed in the web interface when the QPKG is enabled. It should be a GIF image of 64x64 pixels.
+
+* ${QPKG_NAME}_gray.gif is the image displayed in the web interface when the QPKG is disabled. It should be a GIF image of 64x64 pixels. It is usually a greyscale version of the ${QPKG_NAME}.gif image, but that is not a requirement.
+
+* ${QPKG_NAME}_80.gif is the image displayed in the pop-up dialog (with information about the QPKG and the buttons to enable, disable, and remove). It should be a GIF image of 80x80 pixels. If no icons are included then the QPKG is given default icons at installation.
+
+
 # How to docker create qpkg 
   
 https://github.com/fcwu/docker-qdk2
 
 # Update new feature
+2.2.13
+
+	-Add QTS HTTP Proxy and set Proxy_Path function in qpkg.cfg.
+	-Add Timeout (in seconds) for QPKG Enable (first integer) and Timeout for QPKG Disable function in qpkg.cfg. (second integer) (since 4.1.0)
+	-Add Visible setting for If the QPKG has web UI, show this QPKG on the Main menu function in qpkg.cfg.
 
 2.2.12
 	

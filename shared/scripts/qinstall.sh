@@ -58,6 +58,7 @@ CMD_WLOG="/sbin/write_log"
 CMD_XARGS="/usr/bin/xargs"
 CMD_7Z="/usr/local/sbin/7z"
 
+
 ##### System definitions #####
 SYS_EXTRACT_DIR="$(pwd)"
 SYS_CONFIG_DIR="/etc/config"
@@ -71,6 +72,7 @@ SYS_QPKG_DATA_FILE_7ZIP="./data.tar.7z"
 SYS_QPKG_DATA_CONFIG_FILE="./conf.tar.gz"
 SYS_QPKG_DATA_MD5SUM_FILE="./md5sum"
 SYS_QPKG_DATA_BUILTVER_FILE="./built_version"
+SYS_QPKG_DATA_BUILTINFO_FILE="./built_info"
 SYS_QPKG_DATA_PACKAGES_FILE="./Packages.gz"
 SYS_QPKG_CONFIG_FILE="$SYS_CONFIG_DIR/qpkg.conf"
 SYS_QPKG_CONF_FIELD_QPKGFILE="QPKG_File"
@@ -88,11 +90,16 @@ SYS_QPKG_CONF_FIELD_WEB_SSL_PORT="Web_SSL_Port"
 SYS_QPKG_CONF_FIELD_SERVICEPORT="Service_Port"
 SYS_QPKG_CONF_FIELD_SERVICE_PIDFILE="Pid_File"
 SYS_QPKG_CONF_FIELD_AUTHOR="Author"
+SYS_QPKG_CONF_FIELD_SYSAPP="Sys_App"
 SYS_QPKG_CONF_FIELD_RC_NUMBER="RC_Number"
 SYS_QPKG_CONF_FIELD_VOLUME_SELECT="Volume_Select"
 SYS_QPKG_CONF_FIELD_DESKTOPAPP="Desktop"
 SYS_QPKG_CONF_FIELD_DESKTOPAPP_WIN_WIDTH="Win_Width"
 SYS_QPKG_CONF_FIELD_DESKTOPAPP_WIN_HEIGHT="Win_Height"
+SYS_QPKG_CONF_FIELD_USE_PROXY="Use_Proxy"
+SYS_QPKG_CONF_FIELD_PROXY_PATH="Proxy_Path"
+SYS_QPKG_CONF_FIELD_TIMEOUT="Timeout"
+SYS_QPKG_CONF_FIELD_VISIBLE="Visible"
 # The following variables are assigned values at run-time.
 SYS_HOSTNAME=$($CMD_HOSTNAME)
 # Data file name (one of SYS_QPKG_DATA_FILE_GZIP, SYS_QPKG_DATA_FILE_BZIP2,
@@ -290,6 +297,18 @@ store_built_version(){
 
 	# Remove obsolete buildVer.
 	$CMD_SED -i "/\[$QPKG_NAME\]/,/^\[/{/^^buildVer:/d}" $SYS_QPKG_CONFIG_FILE 2>/dev/null
+}
+
+############################
+# Store built information
+############################
+store_built_information(){
+	local built_time=
+
+	if [ -f $SYS_QPKG_DATA_BUILTINFO_FILE ]; then
+		built_time=$($CMD_GETCFG "" "time" -f $SYS_QPKG_DATA_BUILTINFO_FILE)
+		set_qpkg_field "Build" "$built_time"
+	fi
 }
 
 #####################################################################
@@ -552,6 +571,11 @@ set_qpkg_config(){
 
 	set_qpkg_field "cfg:$file" "$md5sum"
 }
+set_qpkg_sys_app(){
+	if [ -n "$QPKG_SYS_APP" ]; then
+		set_qpkg_field $SYS_QPKG_CONF_FIELD_SYSAPP "$QPKG_SYS_APP"
+	fi
+}
 set_qpkg_rc_number(){
 	[ -z "$QPKG_RC_NUM" ] || set_qpkg_field $SYS_QPKG_CONF_FIELD_RC_NUMBER "$QPKG_RC_NUM"
 }
@@ -566,7 +590,26 @@ set_qpkg_desktop_app(){
 		set_qpkg_field $SYS_QPKG_CONF_FIELD_DESKTOPAPP_WIN_HEIGHT "$QPKG_DESKTOP_APP_WIN_HEIGHT"
 	fi
 }
-
+set_qpkg_use_proxy(){
+	if [ -n "$QPKG_USE_PROXY" ]; then
+		set_qpkg_field $SYS_QPKG_CONF_FIELD_USE_PROXY "$QPKG_USE_PROXY"
+	fi
+}
+set_qpkg_proxy_path(){
+	if [ -n "$QPKG_PROXY_PATH" ]; then
+		set_qpkg_field $SYS_QPKG_CONF_FIELD_PROXY_PATH "$QPKG_PROXY_PATH"
+	fi
+}
+set_qpkg_timeout(){
+	if [ -n "$QPKG_TIMEOUT" ]; then
+		set_qpkg_field $SYS_QPKG_CONF_FIELD_TIMEOUT "$QPKG_TIMEOUT"
+	fi
+}
+set_qpkg_visible(){
+	if [ -n "$QPKG_VISIBLE" ]; then
+		set_qpkg_field $SYS_QPKG_CONF_FIELD_VISIBLE "$QPKG_VISIBLE"
+	fi
+}
 
 
 ############################################################
@@ -600,7 +643,12 @@ register_qpkg(){
 	set_qpkg_web_port
 	set_qpkg_web_ssl_port
 	set_qpkg_rc_number
+	set_qpkg_sys_app
 	set_qpkg_desktop_app
+	set_qpkg_use_proxy
+	set_qpkg_proxy_path
+	set_qpkg_timeout
+	set_qpkg_visible
 }
 
 ##################
@@ -1121,6 +1169,8 @@ pre_install(){
 	fi
 
 	store_config
+	store_built_version
+	store_built_information
 	get_qpkg_status
 	stop_service
 
