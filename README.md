@@ -28,7 +28,7 @@ The value must be a full path or a path relative to $QDK_ROOT_DIR. The icons sha
 * ${QPKG_NAME}_80.gif is the image displayed in the pop-up dialog (with information about the QPKG and the buttons to enable, disable, and remove). It should be a GIF image of 80x80 pixels. If no icons are included then the QPKG is given default icons at installation.
 
 
-# How to docker create qpkg 
+# How to create QPKG in docker 
   
 https://github.com/fcwu/docker-qdk2
 
