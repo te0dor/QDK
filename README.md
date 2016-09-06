@@ -36,8 +36,9 @@ https://github.com/fcwu/docker-qdk2
 
 2.2.14
 
-	-Add QNAP display name in qpkg.cfg(The QPKG name displayed on QTS Web UI)
+	-Add QNAP display name in qpkg.cfg.(The QPKG name displayed on QTS Web UI)
 	-Add support maxmum QTS version limitation.
+	-Fix template sample code bug.
 
 2.2.13
 
