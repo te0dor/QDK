@@ -350,8 +350,11 @@ remove_file_and_empty_dir(){
 check_qts_version(){
 	NOW_VERSION=`/sbin/getcfg System Version -f /etc/config/uLinux.conf|cut -c 1,3,5`
     MINI_VERSION=`echo "$QTS_MINI_VERSION"|cut -c 1,3,5`
+	MAX_VERSION=`echo "$QTS_MAX_VERSION"|cut -c 1,3,5`
 	if [ ${MINI_VERSION} -gt ${NOW_VERSION} ]; then
 		err_log "Error Firmware version, please upgrade to QTS ${QTS_MINI_VERSION} or newer version."
+	elif [ ${MAX_VERSION} -lt ${NOW_VERSION} ]; then
+		err_log "Error Firmware version, please downgrade to QTS ${QTS_MAX_VERSION} or older version."
 	else
 	    echo "Firmware check is fine."
 	fi

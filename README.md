@@ -33,6 +33,12 @@ The value must be a full path or a path relative to $QDK_ROOT_DIR. The icons sha
 https://github.com/fcwu/docker-qdk2
 
 # Update new feature
+
+2.2.14
+
+	-Add QNAP display name in qpkg.cfg(The QPKG name displayed on QTS Web UI)
+	-Add support maxmum QTS version limitation.
+
 2.2.13
 
 	-Add QTS HTTP Proxy and set Proxy_Path function in qpkg.cfg.
