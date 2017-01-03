@@ -7,7 +7,8 @@ The project is fork qnap SDK 2.2.4
 # Description
 
 QDK is used to build QPKG files/applications for QNAP Turbo NAS. A QPKG file makes it easy for anyone to install and remove packages. It also gives a package maintainer almost total control on how the package is installed on the NAS.
-The major design goal of QDK is to make it easy for the package maintainer to create simple QPKG files and at the same time also support more advanced packages. QDK started out as a simple modification of the first official release of the QPKG SDK, but now supersedes it. It includes many new features like architecture check at installation, support for digital signatures, different compression algorithms, a comprehensive option to check that other required QPKG packages or Optware packages are installed (or that conflicting packages are not installed), automatic installation of required Optware packages, and a powerful build script.
+The major design goal of QDK is to make it easy for the package maintainer to create simple QPKG files and at the same time also support more advanced packages. QDK started out as a simple modification of the first official release of the QPKG SDK, but now supersedes it. It includes many new features like architecture check at installation, support for digital signatures, different compression algorithms, a comprehensive option to check that other required QPKG packages are installed (or that conflicting packages are not installed), and a powerful build script.
+#### Form QTS 4.2.0 on, no support Optware.
 
 # License
 
@@ -31,6 +32,10 @@ The value must be a full path or a path relative to $QDK_ROOT_DIR. The icons sha
 # How to create QPKG in docker 
   
 https://github.com/fcwu/docker-qdk2
+
+# QDK Quick Start Guide
+
+https://www.gitbook.com/book/edhongcy/qdk-quick-start-guide/details
 
 # Update new feature
 
