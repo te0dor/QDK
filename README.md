@@ -39,6 +39,10 @@ https://www.gitbook.com/book/edhongcy/qdk-quick-start-guide/details
 
 # Update new feature
 
+2.2.15
+	
+	-Add "export QNAP_QPKG" in sample start script. It is for Resource Monitor to monitor the folk process.
+
 2.2.14
 
 	-Add QNAP display name in qpkg.cfg.(The QPKG name displayed on QTS Web UI)

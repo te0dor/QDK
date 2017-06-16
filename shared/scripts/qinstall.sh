@@ -349,8 +349,17 @@ remove_file_and_empty_dir(){
 #############################
 check_qts_version(){
 	NOW_VERSION=`/sbin/getcfg System Version -f /etc/config/uLinux.conf|cut -c 1,3,5`
-    MINI_VERSION=`echo "$QTS_MINI_VERSION"|cut -c 1,3,5`
-	MAX_VERSION=`echo "$QTS_MAX_VERSION"|cut -c 1,3,5`
+	if [ -e $QTS_MINI_VERSION ]; then
+        	MINI_VERSION=0
+	    else
+		MINI_VERSION=`echo "$QTS_MINI_VERSION"|cut -c 1,3,5`
+    	fi
+    	if [ -e $QTS_MAX_VERSION ]; then
+        	MAX_VERSION=1000
+    	else
+        	MAX_VERSION=`echo "$QTS_MAX_VERSION"|cut -c 1,3,5`
+    	fi
+
 	if [ ${MINI_VERSION} -gt ${NOW_VERSION} ]; then
 		err_log "Error Firmware version, please upgrade to QTS ${QTS_MINI_VERSION} or newer version."
 	elif [ ${MAX_VERSION} -lt ${NOW_VERSION} ]; then
@@ -1238,8 +1247,6 @@ main(){
 
 	create_uninstall_script
 
-	# This also starts the service program if the QPKG is enabled.
-	set_qpkg_status
 
 	$CMD_SYNC
 
@@ -1250,6 +1257,9 @@ main(){
 	else
 		log "[App Center] $QPKG_NAME ${QPKG_VER} has been installed in $SYS_QPKG_DIR successfully."
 	fi
+
+	# This also starts the service program if the QPKG is enabled.
+	set_qpkg_status
 
 	##system pop up log after QPKG has installed and app was enable
 
