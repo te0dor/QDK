@@ -383,6 +383,9 @@ add_icons(){
 		[ -f "${dist_icons}/${QPKG_NAME}.gif" ] && copy_icons "${QPKG_NAME}.gif" .qpkg_icon.gif
 		[ -f "${dist_icons}/${QPKG_NAME}_80.gif" ] && copy_icons "${QPKG_NAME}_80.gif" .qpkg_icon_80.gif
 		[ -f "${dist_icons}/${QPKG_NAME}_gray.gif" ] && copy_icons "${QPKG_NAME}_gray.gif" .qpkg_icon_gray.gif
+		[ -f "${dist_icons}/${QPKG_NAME}.png" ] && copy_icons "${QPKG_NAME}.png" .qpkg_icon.gif
+		[ -f "${dist_icons}/${QPKG_NAME}_80.png" ] && copy_icons "${QPKG_NAME}_80.png" .qpkg_icon_80.gif
+		[ -f "${dist_icons}/${QPKG_NAME}_gray.png" ] && copy_icons "${QPKG_NAME}_gray.png" .qpkg_icon_gray.gif
 	fi
 }
 
