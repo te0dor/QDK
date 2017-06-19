@@ -5,11 +5,6 @@ QDK is meant for you to be able to create a customized packages for QNAP Tubro N
 [2]QDK http://forum.qnap.com/viewtopic.php?f=131&t=36132
 [3]QPKG http://wiki.qnap.com/wiki/QPKG_Development_Guidelines
 
-Prepare:
-    cd ~/; svn co svn://192.168.72.101/repos/QPKG/trunk/QDK
-    cd /bin; ln -sf /usr/bin/awk awk; ln -sf /usr/bin/cut cut; ln -sf /usr/bin/md5sum md5sum
-    mkdir /usr/lib/qpkg; cd /usr/lib/qpkg; tar xvf ~/QDK/doc/qpkg_bin_lib.tar.gz; mv sbin ~/; cd /sbin; ln -sf ~/sbin/qpkg qpkg
-
 Usage:
     cd YOUR_QDK_PATH
     ./bin/qbuild --create-env YOUR_QPKG_NAME
