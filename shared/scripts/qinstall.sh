@@ -1179,7 +1179,7 @@ pre_install(){
 		local current_qpkg_ver="$($CMD_GETCFG $QPKG_NAME $SYS_QPKG_CONF_FIELD_VERSION -f $SYS_QPKG_CONFIG_FILE)"
 		$CMD_ECHO "$QPKG_NAME $current_qpkg_ver is already installed. Setup will now perform package upgrading."
 	fi
-
+	check_qts_version
 	store_config
 	store_built_version
 	store_built_information
@@ -1208,7 +1208,7 @@ install(){
 # Post-install routine
 ##################################
 post_install(){
-	check_qts_version
+	
 	remove_obsolete_files
 	copy_qpkg_icons
 	link_start_stop_script
