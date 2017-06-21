@@ -880,7 +880,7 @@ create_qpkg(){
 	debug_msg "Copying $QDK_QPKG_FILE to $QDK_BUILD_DIR"
 	/bin/cp -fp $QDK_QPKG_FILE $QDK_BUILD_DIR
 	/bin/chmod 644 ${QDK_BUILD_DIR}/${QDK_QPKG_FILE}
-
+	/bin/md5sum ${QDK_BUILD_DIR}/${QDK_QPKG_FILE} > ${QDK_BUILD_DIR}/${QDK_QPKG_FILE}.md5
 	/bin/rm -f $QDK_QPKG_FILE
 }
 
