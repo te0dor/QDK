@@ -46,6 +46,10 @@ https://www.gitbook.com/book/edhongcy/qdk-quick-start-guide/details
 2.2.15
 	
 	-Add "export QNAP_QPKG" in sample start script. It is for Resource Monitor to monitor the folk process.
+	-Add qbuild create md5sum file.
+	-Support png format.
+	-Change install log order.
+	
 
 2.2.14
 
