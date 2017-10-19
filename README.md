@@ -44,7 +44,8 @@ https://www.gitbook.com/book/edhongcy/qdk-quick-start-guide/details
 # Update new feature
 
 2.2.16
-    -Add new platform arm_64.
+
+        -Add new platform arm_64.
 
 2.2.15
 	
