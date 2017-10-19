@@ -3,7 +3,7 @@ The project is fork qnap SDK 2.2.4
 
 # QDK Download Link:
 
-https://download.qnap.com/QPKG/QDK/QDK_2.2.15.zip
+https://download.qnap.com/QPKG/QDK/QDK_2.2.16.zip
 
 # QPKG Development Guidelines
 ----------------------------------
@@ -42,6 +42,9 @@ https://github.com/fcwu/docker-qdk2
 https://www.gitbook.com/book/edhongcy/qdk-quick-start-guide/details
 
 # Update new feature
+
+2.2.16
+    -Add new platform arm_64.
 
 2.2.15
 	

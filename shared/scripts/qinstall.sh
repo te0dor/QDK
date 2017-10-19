@@ -445,7 +445,13 @@ assign_arch(){
     			;;
   		armv5tel)
     			SYS_CPU_ARCH="arm-x19"
-    			;;
+   			    ;;
+		armv7l)
+			    SYS_CPU_ARCH="arm-x41"
+				;;
+		aarch64)
+			    SYS_CPU_ARCH="arm_64"
+				;;
   		i*86)
     			SYS_CPU_ARCH="x86"
     			;;
