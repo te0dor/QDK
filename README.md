@@ -3,7 +3,7 @@ The project is fork qnap SDK 2.2.4
 
 # QDK Download Link:
 
-https://download.qnap.com/QPKG/QDK/QDK_2.2.16.zip
+https://download.qnap.com/QPKG/QDK/QDK_2.3.0.zip
 
 # QPKG Development Guidelines
 ----------------------------------
@@ -42,6 +42,11 @@ https://github.com/fcwu/docker-qdk2
 https://www.gitbook.com/book/edhongcy/qdk-quick-start-guide/details
 
 # Update new feature
+
+2.3.0
+
+        -Support Notification Center.
+        -Modify the info log error log and warning log description.
 
 2.2.16
 
