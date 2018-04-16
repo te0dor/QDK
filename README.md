@@ -43,6 +43,10 @@ https://www.gitbook.com/book/edhongcy/qdk-quick-start-guide/details
 
 # Update new feature
 
+2.3.1
+
+        -Change Notification level.
+
 2.3.0
 
         -Support Notification Center.

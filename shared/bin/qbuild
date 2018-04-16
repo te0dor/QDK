@@ -664,7 +664,7 @@ add_qpkg_header(){
                 	QPKG_DIR="\${QINSTALL_PATH}/\${QPKG_NAME}"
 		else
                     if [ -x "/usr/local/sbin/notify" ]; then
-                        /usr/local/sbin/notify send -A A039 -C C001 -M 50 -l error -t 1 "[{0}] {1} install failed due to QTS application install volume not found." "$PREFIX" "$QPKG_NAME"
+                        /usr/local/sbin/notify send -A A039 -C C001 -M 50 -l error -t 3 "[{0}] {1} install failed due to QTS application install volume not found." "$PREFIX" "$QPKG_NAME"
                         set_progress_fail
                         exit 1
                     else
@@ -676,7 +676,7 @@ add_qpkg_header(){
 	        return 0
 	else
 		if [ -x "/usr/local/sbin/notify" ]; then
-                        /usr/local/sbin/notify send -A A039 -C C001 -M 50 -l error -t 1 "[{0}] {1} install failed due to QTS application install volume not found." "$PREFIX" "$QPKG_NAME"
+                        /usr/local/sbin/notify send -A A039 -C C001 -M 50 -l error -t 3 "[{0}] {1} install failed due to QTS application install volume not found." "$PREFIX" "$QPKG_NAME"
                         set_progress_fail
                         exit 1
                 else
@@ -690,7 +690,7 @@ add_qpkg_header(){
 		/bin/cat >>$QDK_QPKG_FILE <<-EOF
 		wrong_arch(){
                          if [ -x "/usr/local/sbin/notify" ]; then
-                             /usr/local/sbin/notify send -A A039 -C C001 -M 51 -l error -t 1 "[{0}] {1} {2} install failed due to the platform is imcompatable. Please use correct package for installation." "$PREFIX" "$QPKG_NAME" "$QPKG_VER"
+                             /usr/local/sbin/notify send -A A039 -C C001 -M 51 -l error -t 3 "[{0}] {1} {2} install failed due to the platform is imcompatable. Please use correct package for installation." "$PREFIX" "$QPKG_NAME" "$QPKG_VER"
                              set_progress_fail
                              exit 1
                          else
