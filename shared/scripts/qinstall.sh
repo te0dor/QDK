@@ -1,7 +1,7 @@
 #!/bin/sh
 ############################################################################
 #
-# $Id: qinstall.sh 358 2011-07-17 08:52:39Z micke $
+# $Id: qinstall.sh 360 2011-07-17 09:34:20Z micke $
 #
 # A QPKG installation script for QDK
 #
@@ -428,7 +428,7 @@ get_share_path(){
 	local share="$1"
 	local path="$2"
 
-	# Get location from smb.conf	
+	# Get location from smb.conf
 	local location=$($CMD_GETCFG "$share" path -f $SYS_CONFIG_DIR/smb.conf)
 
 	[ -n "$location" ] || return 1
@@ -1078,34 +1078,33 @@ create_uninstall_script(){
 	exec > "$uninstall_script"
 
 	$CMD_CAT <<-EOF
-	#!/bin/sh
+#!/bin/sh
 
-	# Stop the service before we begin the removal.
-	if [ -x $SYS_INIT_DIR/$QPKG_SERVICE_PROGRAM ]; then
-		$SYS_INIT_DIR/$QPKG_SERVICE_PROGRAM stop
-		$CMD_SLEEP 5
-		$CMD_SYNC
-	fi
+# Stop the service before we begin the removal.
+if [ -x $SYS_INIT_DIR/$QPKG_SERVICE_PROGRAM ]; then
+	$SYS_INIT_DIR/$QPKG_SERVICE_PROGRAM stop
+	$CMD_SLEEP 5
+	$CMD_SYNC
+fi
 
-	# Package specific routines as defined in package_routines.
-	$PKG_PRE_REMOVE
+# Package specific routines as defined in package_routines.
+$PKG_PRE_REMOVE
 
-	# Remove QPKG directory, init-scripts, and icons.
-	$CMD_RM -fr "$SYS_QPKG_DIR"
-	$CMD_RM -f "$SYS_INIT_DIR/$QPKG_SERVICE_PROGRAM"
-	$CMD_FIND $SYS_STARTUP_DIR -type l -name 'QS*${QPKG_NAME}' | $CMD_XARGS $CMD_RM -f
-	$CMD_FIND $SYS_SHUTDOWN_DIR -type l -name 'QK*${QPKG_NAME}' | $CMD_XARGS $CMD_RM -f
-	$CMD_RM -f "$SYS_RSS_IMG_DIR/${QPKG_NAME}.gif"
-	$CMD_RM -f "$SYS_RSS_IMG_DIR/${QPKG_NAME}_80.gif"
-	$CMD_RM -f "$SYS_RSS_IMG_DIR/${QPKG_NAME}_gray.gif"
+# Remove QPKG directory, init-scripts, and icons.
+$CMD_RM -fr "$SYS_QPKG_DIR"
+$CMD_RM -f "$SYS_INIT_DIR/$QPKG_SERVICE_PROGRAM"
+$CMD_FIND $SYS_STARTUP_DIR -type l -name 'QS*${QPKG_NAME}' | $CMD_XARGS $CMD_RM -f
+$CMD_FIND $SYS_SHUTDOWN_DIR -type l -name 'QK*${QPKG_NAME}' | $CMD_XARGS $CMD_RM -f
+$CMD_RM -f "$SYS_RSS_IMG_DIR/${QPKG_NAME}.gif"
+$CMD_RM -f "$SYS_RSS_IMG_DIR/${QPKG_NAME}_80.gif"
+$CMD_RM -f "$SYS_RSS_IMG_DIR/${QPKG_NAME}_gray.gif"
 
-	# Package specific routines as defined in package_routines.
-	$PKG_MAIN_REMOVE
+# Package specific routines as defined in package_routines.
+$PKG_MAIN_REMOVE
 
-	# Package specific routines as defined in package_routines.
-	$PKG_POST_REMOVE
-
-	EOF
+# Package specific routines as defined in package_routines.
+$PKG_POST_REMOVE
+EOF
 
 	# Restore stdout and close fd 5.
 	exec 1>&5 5>&-
@@ -1169,6 +1168,7 @@ pre_install(){
 		local current_qpkg_ver="$($CMD_GETCFG $QPKG_NAME $SYS_QPKG_CONF_FIELD_VERSION -f $SYS_QPKG_CONFIG_FILE)"
 		$CMD_ECHO "$QPKG_NAME $current_qpkg_ver is already installed. Setup will now perform package upgrading."
 	fi
+
 	check_qts_version
 	store_config
 	store_built_version
@@ -1198,7 +1198,6 @@ install(){
 # Post-install routine
 ##################################
 post_install(){
-
 	remove_obsolete_files
 	copy_qpkg_icons
 	link_start_stop_script
@@ -1267,17 +1266,19 @@ main(){
 
 	##system pop up log after QPKG has installed and app was enable
 
-	if [ -n "$QPKG_DISPLAY_NAME" ]; then
-		if [ -x "/usr/local/sbin/notify" ]; then
-			/usr/local/sbin/notify send -A A039 -C C001 -M 47 -l info -t 3 "[{0}] {1} enabled." "$PREFIX" "$QPKG_DISPLAY_NAME"
+	if is_qpkg_enabled "$QPKG_NAME"; then
+		if [ -n "$QPKG_DISPLAY_NAME" ]; then
+			if [ -x "/usr/local/sbin/notify" ]; then
+				/usr/local/sbin/notify send -A A039 -C C001 -M 47 -l info -t 3 "[{0}] {1} enabled." "$PREFIX" "$QPKG_DISPLAY_NAME"
+			else
+				log "[$PREFIX] Enabled $QPKG_DISPLAY_NAME."
+			fi
 		else
-			log "[$PREFIX] Enabled $QPKG_DISPLAY_NAME."
-		fi
-	else
-		if [ -x "/usr/local/sbin/notify" ]; then
-			/usr/local/sbin/notify send -A A039 -C C001 -M 47 -l info -t 3 "[{0}] {1} enabled." "$PREFIX" "$QPKG_NAME"
-		else
-			log "[$PREFIX] Enabled $QPKG_NAME."
+			if [ -x "/usr/local/sbin/notify" ]; then
+				/usr/local/sbin/notify send -A A039 -C C001 -M 47 -l info -t 3 "[{0}] {1} enabled." "$PREFIX" "$QPKG_NAME"
+			else
+				log "[$PREFIX] Enabled $QPKG_NAME."
+			fi
 		fi
 	fi
 	set_progress_end
