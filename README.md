@@ -47,6 +47,10 @@ https://www.gitbook.com/book/edhongcy/qdk-quick-start-guide/details
 
 # Update new feature
 
+2.3.2
+
+        -Support Ubuntu.
+
 2.3.1
 
         -Change Notification level.
