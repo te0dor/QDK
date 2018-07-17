@@ -3,7 +3,7 @@ The project is fork qnap SDK 2.2.4
 
 # QDK Download Link:
 
-https://download.qnap.com/QPKG/QDK/QDK_2.3.1.zip
+https://download.qnap.com/QPKG/QDK/QDK_2.3.2.zip
 
 # QPKG Development Guidelines
 ----------------------------------
@@ -50,6 +50,7 @@ https://www.gitbook.com/book/edhongcy/qdk-quick-start-guide/details
 2.3.2
 
         -Support Ubuntu.
+		-Fixed notification log.
 
 2.3.1
 
