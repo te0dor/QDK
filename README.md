@@ -50,7 +50,7 @@ https://www.gitbook.com/book/edhongcy/qdk-quick-start-guide/details
 2.3.2
 
         -Support Ubuntu.
-	-Fixed notification log.
+        -Fixed notification log.
 
 2.3.1
 
