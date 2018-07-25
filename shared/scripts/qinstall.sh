@@ -100,6 +100,8 @@ SYS_QPKG_CONF_FIELD_USE_PROXY="Use_Proxy"
 SYS_QPKG_CONF_FIELD_PROXY_PATH="Proxy_Path"
 SYS_QPKG_CONF_FIELD_TIMEOUT="Timeout"
 SYS_QPKG_CONF_FIELD_VISIBLE="Visible"
+SYS_QPKG_CONF_FIELD_FW_VER_MIN="FW_Ver_Min"
+SYS_QPKG_CONF_FIELD_FW_VER_MAX="FW_Ver_Max"
 PREFIX="App Center"
 # The following variables are assigned values at run-time.
 SYS_HOSTNAME=$($CMD_HOSTNAME)
@@ -659,6 +661,16 @@ set_qpkg_visible(){
 		set_qpkg_field $SYS_QPKG_CONF_FIELD_VISIBLE "$QPKG_VISIBLE"
 	fi
 }
+set_qpkg_fw_ver_min(){
+	if [ -n "$QTS_MINI_VERSION" ]; then
+		set_qpkg_field $SYS_QPKG_CONF_FIELD_FW_VER_MIN "$QTS_MINI_VERSION"
+	fi
+}
+set_qpkg_fw_ver_max(){
+	if [ -n "$QTS_MAX_VERSION" ]; then
+		set_qpkg_field $SYS_QPKG_CONF_FIELD_FW_VER_MAX "$QTS_MAX_VERSION"
+	fi
+}
 
 
 ############################################################
@@ -698,6 +710,8 @@ register_qpkg(){
 	set_qpkg_proxy_path
 	set_qpkg_timeout
 	set_qpkg_visible
+	set_qpkg_fw_ver_min
+	set_qpkg_fw_ver_max
 }
 
 ##################
