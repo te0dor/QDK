@@ -5,8 +5,11 @@
 #
 # A QPKG installation script for QDK
 #
+# QDK V.3.3.4
+#
 # Copyright (C) 2009,2010 QNAP Systems, Inc.
 # Copyright (C) 2010,2011 Michael Nordstrom
+# Copyright (C) 2013,2018 QNAP Systems, Inc.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -203,6 +206,68 @@ err_log(){
 	exit 1
 }
 
+handle_extract_error(){
+	if [ -x "/usr/local/sbin/notify" ]; then
+		/usr/local/sbin/notify send -A A039 -C C001 -M 35 -l error -t 3 "[{0}] {1} install failed du to data file error." "$PREFIX" "$QPKG_DISPLAY_NAME"
+		set_progress_fail
+		exit 1
+	else
+		err_log "$SYS_MSG_FILE_ERROR"
+	fi
+}
+
+TOKEN=""
+
+codesigning_preinstall(){
+	local ret="$($CMD_ECHO -n "$QPKG_NAME:$SYS_QPKG_DIR" | qsh -0e cs_qdaemon.verify_qpkg)"
+	local status=`$CMD_ECHO $ret | awk -F':' '{print $1}'`
+	TOKEN=`$CMD_ECHO $ret | awk -F':' '{print $2}'`
+	echo "verify_qpkg return: $ret, status: $status, token: $TOKEN"
+	if [ "x$status" != "xsuccess" ] || [ "x$TOKEN" = "x" ]; then
+		handle_extract_error
+	fi
+}
+
+codesigning_postinstall(){
+	echo "codesigning_postinstall token: $TOKEN"
+	if [ "x$TOKEN" != "x" ]; then
+		local ret="$($CMD_ECHO -n "$QPKG_NAME:$TOKEN" | qsh -0e cs_qdaemon.qpkg_finish)"
+		echo "finish return: $ret"
+	else
+		handle_extract_error
+	fi
+}
+
+codesigning_extract_data(){
+	[ -n "$1" ] || return 1
+	local archive="$1"
+	local root_dir="${2:-$SYS_QPKG_DIR}"
+	local codesigning_dir=".qcodesigning"
+	local ret=1
+	case "$archive" in
+		*.gz|*.bz2)
+			$CMD_TAR xf "$archive" "./$codesigning_dir" 2>/dev/null || handle_extract_error
+			$CMD_MV "$codesigning_dir" "$root_dir/$codesigning_dir"
+			codesigning_preinstall
+			$CMD_TAR xvf "$archive" --exclude="$codesigning_dir" -C "$root_dir" 2>/dev/null >>$SYS_QPKG_DIR/.list
+			ret=$?
+			codesigning_postinstall
+			[ $ret = 0 ] || handle_extract_error
+			;;
+		*.7z)
+			$CMD_7Z x -so "$archive" 2>/dev/null | $CMD_TAR x "./$codesigning_dir" 2>/dev/null || handle_extract_error
+			$CMD_MV "$codesigning_dir" "$root_dir/$codesigning_dir"
+			codesigning_preinstall
+			$CMD_7Z x -so "$archive" 2>/dev/null | $CMD_TAR xv -C "$root_dir" --exclude="$codesigning_dir" 2>/dev/null >>$SYS_QPKG_DIR/.list
+			ret=$?
+			codesigning_postinstall
+			[ $ret = 0 ] || handle_extract_error
+			;;
+		*)
+			handle_extract_error
+	esac
+}
+
 ####################
 # Extract data file
 ####################
@@ -212,20 +277,13 @@ extract_data(){
 	local root_dir="${2:-$SYS_QPKG_DIR}"
 	case "$archive" in
 		*.gz|*.bz2)
-			$CMD_TAR xvf "$archive" -C "$root_dir" 2>/dev/null >>$SYS_QPKG_DIR/.list || if [ -x "/usr/local/sbin/notify" ]; then /usr/local/sbin/notify send -A A039 -C C001 -M 35 -l error -t 3 "[{0}] {1} install failed du to data file error." "$PREFIX" "$QPKG_DISPLAY_NAME";set_progress_fail;exit 1;else err_log "$SYS_MSG_FILE_ERROR";fi
-
+			$CMD_TAR xvf "$archive" -C "$root_dir" 2>/dev/null >>$SYS_QPKG_DIR/.list || handle_extract_error
 			;;
 		*.7z)
-			$CMD_7Z x -so "$archive" 2>/dev/null | $CMD_TAR xv -C "$root_dir" 2>/dev/null >>$SYS_QPKG_DIR/.list || if [ -x "/usr/local/sbin/notify" ]; then /usr/local/sbin/notify send -A A039 -C C001 -M 35 -l error -t 3 "[{0}] {1} install failed du to data file error." "$PREFIX" "$QPKG_DISPLAY_NAME";set_progress_fail;exit 1;else err_log "$SYS_MSG_FILE_ERROR";fi
+			$CMD_7Z x -so "$archive" 2>/dev/null | $CMD_TAR xv -C "$root_dir" 2>/dev/null >>$SYS_QPKG_DIR/.list || handle_extract_error
 			;;
 		*)
-			if [ -x "/usr/local/sbin/notify" ]; then
-				/usr/local/sbin/notify send -A A039 -C C001 -M 35 -l error -t 3 "[{0}] {1} install failed du to data file error." "$PREFIX" "$QPKG_DISPLAY_NAME"
-				set_progress_fail
-				exit 1
-			else
-				err_log "$SYS_MSG_FILE_ERROR"
-			fi
+			handle_extract_error
 	esac
 }
 
@@ -234,7 +292,7 @@ extract_data(){
 #############################
 extract_config(){
 	if [ -f $SYS_QPKG_DATA_CONFIG_FILE ]; then
-		$CMD_TAR xvf $SYS_QPKG_DATA_CONFIG_FILE -C / 2>/dev/null | $CMD_SED 's/\.//' 2>/dev/null >>$SYS_QPKG_DIR/.list || if [ -x "/usr/local/sbin/notify" ]; then /usr/local/sbin/notify send -A A039 -C C001 -M 35 -l error -t 3 "[{0}] {1} install failed du to data file error." "$PREFIX" "$QPKG_DISPLAY_NAME";set_progress_fail;exit 1;else err_log "$SYS_MSG_FILE_ERROR";fi
+		$CMD_TAR xvf $SYS_QPKG_DATA_CONFIG_FILE -C / 2>/dev/null | $CMD_SED 's/\.//' 2>/dev/null >>$SYS_QPKG_DIR/.list || handle_extract_error
 	fi
 }
 
@@ -1200,7 +1258,11 @@ pre_install(){
 # Install routines
 ##################################
 install(){
-	extract_data "$SYS_QPKG_DATA_FILE"
+	if [ -x "/sbin/cs_qdaemon" ] && [ "x${QNAP_CODE_SIGNING}" = "x1" ]; then
+		codesigning_extract_data "$SYS_QPKG_DATA_FILE"
+	else
+		extract_data "$SYS_QPKG_DATA_FILE"
+	fi
 	extract_config
 	restore_config
 

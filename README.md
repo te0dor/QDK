@@ -51,6 +51,10 @@ https://www.gitbook.com/book/edhongcy/qdk-quick-start-guide/details
 
 # Update new feature
 
+2.3.4
+
+    -Added code signing function for QNAP internal use only.
+
 2.3.3
 
     -Fixed install failed but app center show disable icon.

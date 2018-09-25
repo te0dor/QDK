@@ -1171,6 +1171,11 @@ cleanup_after_build(){
 	call_teardown
 }
 
+# Code signing related routines
+do_code_signing(){
+	msg "Creating code signing data..."
+	python "${QDK_SCRIPTS_DIR}/codesigning_qdk.py" cert="${QDK_SCRIPTS_DIR}/codesigning_cert.pem" cwd="`pwd`" csv="${QNAP_CODE_SIGNING_CSV}" server=${QNAP_CODE_SIGNING_SERVER_IP}:${QNAP_CODE_SIGNING_SERVER_PORT}  2>&1 | tee -a code_signing.log
+}
 
 # Main build function.
 build_qpkg(){
@@ -1179,6 +1184,11 @@ build_qpkg(){
 	cd "${QDK_ROOT_DIR:-.}" 2>/dev/null || err_msg "$QDK_ROOT_DIR: no such directory"
 
 	initialize_build_environment
+
+	find . -type d -name '.qcodesigning' | xargs rm -rf
+	if [ "x${QNAP_CODE_SIGNING}" = "x1" ]; then
+		do_code_signing
+	fi
 
 	if [ -n "$QDK_BUILD_ARCH" ]; then
 		traverse_and_build
