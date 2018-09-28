@@ -8,6 +8,8 @@ import tempfile
 import subprocess
 import csv
 
+TOOL = "openssl"
+
 TOKEN_NOT_SET = 2
 CONNECT_ERROR = 3
 SERVER_ERROR = 4
@@ -17,8 +19,12 @@ FOLDER_ERROR = 22
 
 DB_NAME = "nas_sign.db"
 DB_SIG_NAME = "nas_sign.sig"
-KEY_NAME = "pub_key.pem"
 KEY_SIG_NAME = "pub_key.sig"
+
+if TOOL == "openssl":
+    KEY_NAME = "pub_key.pem"
+elif TOOL == "gpg":
+    KEY_NAME = "pub_key.gpg"
 
 def get_token():
     if "QNAP_CODESIGNING_TOKEN" not in os.environ:
@@ -76,16 +82,28 @@ def create_db(db):
         );
     """
     sql_add_path_index = "CREATE INDEX SignedFilePath ON SignedFile (Path);"
-    sql_create_key_table = """
-        CREATE TABLE PublicKey (
-            KeyID INTEGER PRIMARY KEY,
-            Type TEXT NOT NULL,
-            Version TEXT,
-            QpkgName TEXT,
-            Key TEXT NOT NULL,
-            Signature BLOB NOT NULL
-        );
-    """
+    if TOOL == "openssl": 
+        sql_create_key_table = """
+            CREATE TABLE PublicKey (
+                KeyID INTEGER PRIMARY KEY,
+                Type TEXT NOT NULL,
+                Version TEXT,
+                QpkgName TEXT,
+                Key TEXT NOT NULL,
+                Signature BLOB NOT NULL
+            );
+        """
+    elif TOOL == "gpg":
+        sql_create_key_table = """
+            CREATE TABLE PublicKey (
+                KeyID INTEGER PRIMARY KEY,
+                Type TEXT NOT NULL,
+                Version TEXT,
+                QpkgName TEXT,
+                Key BLOB NOT NULL,
+                Signature BLOB NOT NULL
+            );
+        """
 
     db_folder = os.path.dirname(db)
     if db_folder != "" and not os.path.isdir(db_folder):
@@ -224,20 +242,20 @@ def sign_files(kwargs):
         logging.error("Failed to run curl command")
         sys.exit(1)
 
-def decode_signature(signature_b64):
-    encoded_signature_file = tempfile.NamedTemporaryFile(mode="w")
-    encoded_signature_file.write(signature_b64)
-    encoded_signature_file.flush()
-    signature_file = tempfile.NamedTemporaryFile(mode="w+b")
+def b64_decode(encoded):
+    encoded_file = tempfile.NamedTemporaryFile(mode="w")
+    encoded_file.write(encoded)
+    encoded_file.flush()
+    decoded_file = tempfile.NamedTemporaryFile(mode="w+b")
     command = "openssl enc -d -base64 -A -in %s -out %s"
-    command = command % (encoded_signature_file.name, signature_file.name)
+    command = command % (encoded_file.name, decoded_file.name)
     try:
         returncode = subprocess.call(command.split())
         if returncode != 0:
             logging.error("Failed to decode signature of file: %s" % path)
             return None
         else:
-            return signature_file.read()
+            return decoded_file.read()
     except Exception as e:
         logging.error("Failed to run openssl command")
         sys.exit(1)
@@ -250,8 +268,11 @@ def add_key_to_db(public_key_dict, sqlite_file_name):
     key_type = public_key_dict["key_type"]
     qpkgname = public_key_dict["qpkgname"] if "qpkgname" in public_key_dict else ""
     version = public_key_dict["version"]
-    pem = public_key_dict["pem"]
-    signature = decode_signature(public_key_dict["signature"])
+    if TOOL == "openssl":
+        key = public_key_dict["key"]
+    elif TOOL == "gpg":
+        key = b64_decode(public_key_dict["key"])
+    signature = b64_decode(public_key_dict["signature"])
     conn = sqlite3.connect(sqlite_file_name)
     cur = conn.cursor()
     sql_get_key = "SELECT * FROM PublicKey WHERE Type=? AND QpkgName=? AND Version=?;"
@@ -260,7 +281,10 @@ def add_key_to_db(public_key_dict, sqlite_file_name):
     if entry == None:
         # Key doesnot exist in DB, insert one and return KeyID
         sql_insert_key = "INSERT INTO PublicKey (Type,QpkgName,Version,Key,Signature) VALUES (?,?,?,?,?);"
-        cur.execute(sql_insert_key, (key_type,qpkgname,version,pem,sqlite3.Binary(signature)))
+        if TOOL == "openssl":
+            cur.execute(sql_insert_key, (key_type,qpkgname,version,key,sqlite3.Binary(signature)))
+        elif TOOL == "gpg":
+            cur.execute(sql_insert_key, (key_type,qpkgname,version,sqlite3.Binary(key),sqlite3.Binary(signature)))
         keyid = cur.lastrowid
     else:
         # Key already exists in DB, return KeyID
@@ -283,8 +307,7 @@ def update_signatures(kwargs, server_response):
     sql_insert_signature = "INSERT INTO SignedFile (Path,Signature,PublicKeyID) VALUES (?,?,?)"
     for item in signatures:
         file_path = item["file"]
-        signature_b64 = item["signature"]
-        signature = decode_signature(signature_b64)
+        signature = b64_decode(item["signature"])
         if signature is None:
             continue
         cur.execute(sql_update_signature, (keyid, sqlite3.Binary(signature), file_path))

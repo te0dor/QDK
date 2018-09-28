@@ -186,7 +186,7 @@ def sign_and_save_db_signatures(kwargs):
             sys.exit(codesigning_common.SERVER_ERROR)
         os.remove(output_tgz_file)
         signature_b64 = response["signatures"][0]["signature"]
-        signature = codesigning_common.decode_signature(signature_b64)
+        signature = codesigning_common.b64_decode(signature_b64)
 
         # Save to file
         signature_file_name = folder + "/" + codesigning_common.DB_SIG_NAME
