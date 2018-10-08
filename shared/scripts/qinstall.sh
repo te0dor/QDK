@@ -85,6 +85,7 @@ SYS_QPKG_CONF_FIELD_VERSION="Version"
 SYS_QPKG_CONF_FIELD_ENABLE="Enable"
 SYS_QPKG_CONF_FIELD_DATE="Date"
 SYS_QPKG_CONF_FIELD_SHELL="Shell"
+SYS_QPKG_CONF_FIELD_SHELL_DISABLE_UI_NO_OFF="Alt_Shell"
 SYS_QPKG_CONF_FIELD_INSTALL_PATH="Install_Path"
 SYS_QPKG_CONF_FIELD_CONFIG_PATH="Config_Path"
 SYS_QPKG_CONF_FIELD_WEBUI="WebUI"
@@ -397,7 +398,7 @@ add_qpkg_config(){
 
 	$CMD_ECHO "$file" >>$SYS_QPKG_DIR/.list
 	$CMD_GETCFG "$QPKG_NAME" "cfg:$file" -f $SYS_QPKG_CONFIG_FILE >/dev/null || \
-		set_qpkg_config $file $md5sum
+	set_qpkg_config $file $md5sum
 }
 
 #################################################
@@ -611,20 +612,20 @@ disable_qpkg(){
 	set_qpkg_field $SYS_QPKG_CONF_FIELD_ENABLE "FALSE"
 }
 set_qpkg_name(){
-	set_qpkg_field $SYS_QPKG_CONF_FIELD_NAME "$QPKG_NAME"
-   	set_qpkg_field $SYS_QPKG_CONF_FIELD_DISPLAY_NAME "$QPKG_DISPLAY_NAME"
+	[ -z "$QPKG_NAME" ] || set_qpkg_field $SYS_QPKG_CONF_FIELD_NAME "$QPKG_NAME"
+   	[ -z "$QPKG_DISPLAY_NAME" ] || set_qpkg_field $SYS_QPKG_CONF_FIELD_DISPLAY_NAME "$QPKG_DISPLAY_NAME"
 }
 set_qpkg_version(){
-	set_qpkg_field $SYS_QPKG_CONF_FIELD_VERSION "$QPKG_VER"
+	[ -z "$QPKG_VER" ] || set_qpkg_field $SYS_QPKG_CONF_FIELD_VERSION "$QPKG_VER"
 }
 set_qpkg_author(){
-	set_qpkg_field $SYS_QPKG_CONF_FIELD_AUTHOR "$QPKG_AUTHOR"
+	[ -z "$QPKG_AUTHOR" ] || set_qpkg_field $SYS_QPKG_CONF_FIELD_AUTHOR "$QPKG_AUTHOR"
 }
 set_qpkg_install_date(){
 	set_qpkg_field $SYS_QPKG_CONF_FIELD_DATE $($CMD_DATE +%F)
 }
 set_qpkg_install_path(){
-	set_qpkg_field $SYS_QPKG_CONF_FIELD_INSTALL_PATH $SYS_QPKG_DIR
+	[ -z "$SYS_QPKG_DIR" ] || set_qpkg_field $SYS_QPKG_CONF_FIELD_INSTALL_PATH "$SYS_QPKG_DIR"
 }
 set_qpkg_file_name(){
 	set_qpkg_field $SYS_QPKG_CONF_FIELD_QPKGFILE "${QPKG_QPKG_FILE:-${QPKG_NAME}.qpkg}"
@@ -633,7 +634,12 @@ set_qpkg_config_path(){
 	[ -z "$QPKG_CONFIG_PATH" ] || set_qpkg_field $SYS_QPKG_CONF_FIELD_CONFIG_PATH "$QPKG_CONFIG_PATH"
 }
 set_qpkg_service_path(){
-	[ -z "$QPKG_SERVICE_PROGRAM" ] || set_qpkg_field $SYS_QPKG_CONF_FIELD_SHELL "$SYS_QPKG_DIR/$QPKG_SERVICE_PROGRAM"
+	[ -z $QPKG_DISABLE_APPCENTER_UI_SERVICE ] && QPKG_DISABLE_APPCENTER_UI_SERVICE=0
+	if [ $QPKG_DISABLE_APPCENTER_UI_SERVICE -eq "1" ]; then
+		[ -z "$QPKG_SERVICE_PROGRAM" ] || set_qpkg_field "$SYS_QPKG_CONF_FIELD_SHELL_DISABLE_UI_NO_OFF" "$SYS_QPKG_DIR/$QPKG_SERVICE_PROGRAM"
+	else
+		[ -z "$QPKG_SERVICE_PROGRAM" ] || set_qpkg_field $SYS_QPKG_CONF_FIELD_SHELL "$SYS_QPKG_DIR/$QPKG_SERVICE_PROGRAM"
+	fi
 }
 set_qpkg_service_port(){
 	[ -z "$QPKG_SERVICE_PORT" ] || set_qpkg_field $SYS_QPKG_CONF_FIELD_SERVICEPORT "$QPKG_SERVICE_PORT"
