@@ -5,9 +5,6 @@
 
 if [ -d "/usr/local/QDK" ]; then
 	echo "QDK exists."
-else
-	apt-get update
-	apt-get install -y build-essential wget
 fi
 
 case "$1" in
